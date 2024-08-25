@@ -1,5 +1,5 @@
 const Stripe = require('stripe');
-const stripe = Stripe('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'); // Reemplaza con tu clave secreta de Stripe
+const stripe = Stripe('sk_live_....'); // Reemplaza con tu clave secreta de Stripe
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
