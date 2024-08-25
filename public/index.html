@@ -185,29 +185,34 @@
 
       const amount = document.getElementById('amount').value * 100; // Convertir a centavos
 
-      const { clientSecret } = await fetch('/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amount })
-      }).then((r) => r.json());
-
-      const { paymentIntent, error } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method: {
-            card: cardNumberElement,
-          }
-        }
-      );
-
       const paymentResult = document.getElementById('payment-result');
 
-      if (error) {
-        paymentResult.textContent = `Error: ${error.message}`;
+      try {
+        const { clientSecret } = await fetch('/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amount })
+        }).then((r) => r.json());
+
+        const { paymentIntent, error } = await stripe.confirmCardPayment(
+          clientSecret,
+          {
+            payment_method: {
+              card: cardNumberElement,
+            }
+          }
+        );
+
+        if (error) {
+          paymentResult.textContent = `Error: ${error.message}`;
+          paymentResult.style.color = 'red';
+        } else if (paymentIntent.status === 'succeeded') {
+          paymentResult.textContent = '¡Pago realizado con éxito!';
+          paymentResult.style.color = 'green';
+        }
+      } catch (error) {
+        paymentResult.textContent = `Error en la transacción: ${error.message}`;
         paymentResult.style.color = 'red';
-      } else if (paymentIntent.status === 'succeeded') {
-        paymentResult.textContent = '¡Pago realizado con éxito!';
-        paymentResult.style.color = 'green';
       }
     });
   </script>
