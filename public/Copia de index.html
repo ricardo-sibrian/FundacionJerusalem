@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Donación</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      font-size: 28px;
+      margin: 30px auto;
+      color: #333;
+    }
+    .form {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    #card-element {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .info {
+      font-size: 12px;
+      color: #777;
+      margin-top: 10px;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .description {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      text-align: justify;
+      margin: 20px auto;
+      max-width: 500px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>Formulario de Donación 2D sin CVC</header>
+  <div class="form">
+    <h2>Realiza tu pago</h2>
+    <form id="payment-form">
+      <div class="form-group">
+        <div id="card-element"><!-- Stripe Elements se montará aquí --></div>
+        <div class="info">Nota: El código CVC no es requerido para procesar este pago.</div>
+      </div>
+      <button id="submit">Pagar</button>
+    </form>
+    <div id="payment-result"></div>
+  </div>
+  <div class="description">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac neque sed ligula varius tincidunt. Donec luctus, purus ut faucibus varius, ligula magna viverra mi, eget malesuada nulla lorem at risus. Duis feugiat dolor sed cursus viverra. Donec aliquet lectus id interdum tempus. Integer interdum ligula at dictum luctus. Mauris auctor nec metus ac varius. Cras sagittis tincidunt leo non eleifend. Donec vel diam id velit ultrices dignissim non sit amet ipsum.
+  </div>
+
+  <script>
+    const stripe = Stripe('tu-public-key'); // Reemplaza con tu clave pública de Stripe
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+      hidePostalCode: true // Oculta el código postal si no lo necesitas
+    });
+    cardElement.mount('#card-element');
+
+    const form = document.getElementById('payment-form');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const { clientSecret } = await fetch('/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 5000 }) // Define el monto (en centavos)
+      }).then((r) => r.json());
+
+      const { paymentIntent, error } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+            // Si la tarjeta no tiene CVC, no es necesario especificar la propiedad payment_method
+          }
+        }
+      );
+
+      const paymentResult = document.getElementById('payment-result');
+
+      if (error) {
+        paymentResult.textContent = `Error: ${error.message}`;
+      } else if (paymentIntent.status === 'succeeded') {
+        paymentResult.textContent = '¡Pago realizado con éxito!';
+      }
+    });
+  </script>
+</body>
+</html>
