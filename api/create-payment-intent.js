@@ -1,5 +1,7 @@
+require('dotenv').config(); // Cargar las variables de entorno desde el archivo .env
+
 const Stripe = require('stripe');
-const stripe = Stripe('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'); // Reemplaza con tu clave secreta de Stripe
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Usar la clave secreta de Stripe desde el archivo .env
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
