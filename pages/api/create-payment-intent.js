@@ -1,5 +1,5 @@
 const Stripe = require('stripe');
-const stripe = Stripe('sk_live_....'); // Reemplaza con tu clave secreta de Stripe
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Usa la variable de entorno para la clave secreta
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
