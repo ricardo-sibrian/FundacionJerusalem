@@ -188,7 +188,7 @@
       const paymentResult = document.getElementById('payment-result');
 
       try {
-        const response = await fetch('/create-payment-intent', {
+        const response = await fetch('/api/create-payment-intent', { // Ruta corregida
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: amount })
