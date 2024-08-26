@@ -114,7 +114,7 @@
 <body>
   <div class="container">
     <div class="header-container">
-      <img src="https://fundacionjerusalem.org/wp-content/uploads/2018/06/English.png" alt="Logo"> <!-- Reemplaza 'logo.png' con la ruta de tu logo -->
+      <img src="https://fundacionjerusalem.org/wp-content/uploads/2018/06/English.png" alt="Logo">
       <h1>Donación 2D sin CVV</h1>
       <p>Fundación Jerusalén</p>
     </div>
@@ -127,18 +127,18 @@
         </div>
         <div class="form-group">
           <label for="card-number">Número de Tarjeta</label>
-          <div id="card-number"><!-- Stripe Card Number Element --></div>
+          <div id="card-number" aria-label="Número de tarjeta"><!-- Stripe Card Number Element --></div>
         </div>
         <div class="form-group">
           <label for="card-expiry">Fecha de Vencimiento</label>
-          <div id="card-expiry"><!-- Stripe Card Expiry Element --></div>
+          <div id="card-expiry" aria-label="Fecha de vencimiento"><!-- Stripe Card Expiry Element --></div>
         </div>
         <button id="submit">Completar Donación</button>
       </form>
       <div id="payment-result"></div>
     </div>
     <div class="description">
-      La Fundación Jerusalén se compromete a proteger la seguridad y privacidad de tus datos. Nuestro sistema de procesamiento de pagos utiliza la tecnología de encriptación más avanzada para garantizar que tu información financiera esté protegida en todo momento.
+      Este sitio utiliza tecnología segura para procesar donaciones. Todos los datos están cifrados y protegidos para garantizar su privacidad. Si tiene alguna pregunta, no dude en contactarnos.
     </div>
   </div>
 
@@ -183,9 +183,21 @@
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
+      const submitButton = document.getElementById('submit');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Procesando...';
+
       const amount = document.getElementById('amount').value * 100; // Convertir a centavos
 
       const paymentResult = document.getElementById('payment-result');
+
+      if (amount <= 0) {
+        paymentResult.textContent = 'Por favor ingrese una cantidad válida.';
+        paymentResult.style.color = 'red';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Completar Donación';
+        return;
+      }
 
       try {
         const response = await fetch('/api/create-payment-intent', { // Ruta corregida
@@ -194,7 +206,6 @@
           body: JSON.stringify({ amount: amount })
         });
 
-        // Verificar que la respuesta sea JSON válida
         if (!response.ok) {
           throw new Error('Error en la solicitud al servidor.');
         }
@@ -220,6 +231,9 @@
       } catch (error) {
         paymentResult.textContent = `Error en la transacción: ${error.message}`;
         paymentResult.style.color = 'red';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Completar Donación';
       }
     });
   </script>
